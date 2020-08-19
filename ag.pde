@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 int prob_array[];
  Individual[] population;
+ Individual optimal_individual;
 //crear individuo
 
 //int main() {
@@ -20,6 +21,10 @@ void setup() {
   int generation_size = 500;
   Individual[] childrens;
   population = init_population(10);
+  optimal_individual = new Individual(999999);
+  System.out.println(optimal_individual.objetive);
+  //////////////////////////////
+  update_best();
   print_fits(population);
   Arrays.sort(population);
   print_fits(population);
@@ -47,6 +52,9 @@ class Individual implements Comparable<Individual>{
     this.x=x;
     this.y=y;
     this.objetive=objetive_fun(this.x,this.y);
+  }
+  Individual(float objetive){
+    this.objetive=objetive;
   }
   
   @Override
@@ -117,6 +125,12 @@ Individual[] generate_childrens(Individual[] selected_individual, int generation
   }
   
   return childrens;
+}
+
+void update_best(){
+  for (int i= 0; i<population.length; i++){
+    //if 
+  }
 }
 
 //float z = funtion(population[1].x,population[1].y);
