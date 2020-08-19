@@ -11,16 +11,22 @@
 //fin while
 import java.util.Arrays;
 
+int prob_array[];
+
 //crear individuo
 
 //int main() {
 void setup() {
   Individual[] population = init_population(10);
+  
+  
   print_fits(population);
   Arrays.sort(population);
   print_fits(population);
   
-  System.out.println(objetive_fun(population[1].x, population[1].y));
+  prob_array = generate_prob_array(population);
+  
+  System.out.println(prob_array.length);
 }
 
 void print_fits(Individual[] population){
@@ -42,10 +48,10 @@ class Individual implements Comparable<Individual>{
   
   @Override
   public int compareTo(Individual i) {
-    if(this.objetive < i.get_objetive_value()) return 1;
+    if(this.objetive < i.get_objetive_value()) return -1;
     if(this.objetive == i.get_objetive_value()) return 0;
        //if(this.age > p.getAge()) return 1;
-    else return -1;
+    else return 1;
     }
   
   void update_objetive(){
@@ -75,5 +81,33 @@ Individual[] init_population(int size){
    return popu;
 }
 
+int[] generate_prob_array(Individual[] ind){
+  int total_length = 1;
+  int size = ind.length;
+  int index = 0;
+  for(int i=1;i<=ind.length;i++){ total_length += i; }
+  System.out.println(total_length);
+  int A[] = new int[total_length];
+  for(int i=0; i<size;i++){
+   for (int j=1;j<size-i+1;j++){ 
+      A[index] = i;
+      index++;
+      System.out.println(index+" este va aqui  "+i);
+      
+   }
+  }
+  return A;
+}
+
 //float z = funtion(population[1].x,population[1].y);
 //System.out.println(population[1].x);
+
+//Falta:
+/*
+seleccionar padres en base a probabilidad del rank
+reproducir los padres 
+guardar la siguiente generacion en el mismo arreglo
+realizar mutaciones
+guardar mejor
+
+*/
