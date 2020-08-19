@@ -12,21 +12,21 @@
 import java.util.Arrays;
 
 int prob_array[];
-
+ Individual[] population;
 //crear individuo
 
 //int main() {
 void setup() {
-  Individual[] population = init_population(10);
-  
-  
+  int generation_size = 500;
+  population = init_population(10);
   print_fits(population);
   Arrays.sort(population);
   print_fits(population);
   
   prob_array = generate_prob_array(population);
-  
-  System.out.println(prob_array.length);
+  Individual[] selected_individuals = generate_selected_individuals(generation_size, prob_array);
+  print_fits(selected_individuals);
+  //System.out.println("wena larry:" + (int)(Math.random() * 50));
 }
 
 void print_fits(Individual[] population){
@@ -85,19 +85,28 @@ int[] generate_prob_array(Individual[] ind){
   int total_length = 1;
   int size = ind.length;
   int index = 0;
-  for(int i=1;i<=ind.length;i++){ total_length += i; }
+  for(int i=1;i<=ind.length;i++){total_length += i;}
   System.out.println(total_length);
   int A[] = new int[total_length];
   for(int i=0; i<size;i++){
    for (int j=1;j<size-i+1;j++){ 
       A[index] = i;
       index++;
-      System.out.println(index+" este va aqui  "+i);
-      
    }
   }
   return A;
 }
+
+Individual[] generate_selected_individuals(int generation_size, int[] prob_array){
+  Individual[] selected_individuals = new Individual[generation_size];
+  int prob_array_length = prob_array.length;
+  for (int i=0; i<generation_size; i++){
+    selected_individuals[i] = population[prob_array[(int)(Math.random() * prob_array_length)]];
+  }
+  return selected_individuals;
+}
+
+
 
 //float z = funtion(population[1].x,population[1].y);
 //System.out.println(population[1].x);
