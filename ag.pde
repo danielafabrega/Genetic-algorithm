@@ -1,14 +1,8 @@
 //pseudocodigo
-
-//crear población inicial;
-//Mientras  !criterio de parada hacer:
-//Evaluar poblacion
-//Obtener reproductores
-//reproducir individuos
-//evaluar descendientes
-//reemplazar el arreglo original por descendientes sobrevivientes segun esquema de reemplazo
-//siguiente generacion 
-//fin while
+// PENDING:
+// while que encapsula todo
+// elitismo ???
+// mutaciones ???
 import java.util.Arrays;
 
 int prob_array[];
@@ -24,7 +18,9 @@ void setup() {
   optimal_individual = new Individual(999999);
   System.out.println(optimal_individual.objetive);
   //////////////////////////////
-  update_best();
+  
+  
+  update_optimal();
   print_fits(population);
   Arrays.sort(population);
   print_fits(population);
@@ -34,6 +30,8 @@ void setup() {
   print_fits(selected_individuals);
   childrens = generate_childrens(selected_individuals, generation_size);
   print_fits(childrens);
+  
+  population= childrens;
   //System.out.println("wena larry:" + (int)(Math.random() * 50));
 }
 
@@ -56,6 +54,25 @@ class Individual implements Comparable<Individual>{
   Individual(float objetive){
     this.objetive=objetive;
   }
+  public void set_x(float new_value){
+    this.x=new_value;
+  }
+  public void set_y(float new_value){
+    this.y=new_value;
+  }
+  public void set_objetive(float new_value){
+    this.objetive=new_value;
+  }
+  public float get_x(){
+    return this.x;
+  }
+  public float get_y(){
+    return this.y;
+  }
+  public float get_objetive(){
+    return this.objetive;
+  }
+  
   
   @Override
   public int compareTo(Individual i) {
@@ -127,9 +144,16 @@ Individual[] generate_childrens(Individual[] selected_individual, int generation
   return childrens;
 }
 
-void update_best(){
+void update_optimal(){
+  float value;
+  
   for (int i= 0; i<population.length; i++){
-    //if 
+    value = population[i].get_objetive();
+    if(optimal_individual.get_objetive()>value){
+      optimal_individual.set_x(population[i].get_x());
+      optimal_individual.set_y(population[i].get_y());
+      optimal_individual.set_objetive(value);
+    }
   }
 }
 
