@@ -18,20 +18,23 @@ int prob_array[];
 //int main() {
 void setup() {
   int generation_size = 500;
+  Individual[] childrens;
   population = init_population(10);
   print_fits(population);
   Arrays.sort(population);
   print_fits(population);
   
   prob_array = generate_prob_array(population);
-  Individual[] selected_individuals = generate_selected_individuals(generation_size, prob_array);
+  Individual[] selected_individuals = generate_selected_individuals(generation_size, prob_array); // TO DO: separate individual var
   print_fits(selected_individuals);
+  childrens = generate_childrens(selected_individuals, generation_size);
+  print_fits(childrens);
   //System.out.println("wena larry:" + (int)(Math.random() * 50));
 }
 
-void print_fits(Individual[] population){
+void print_fits(Individual[] arr){
   for (int i=0; i<10;i++){
-    System.out.println(population[i].x+", "+population[i].x+" objetivo: "+population[i].objetive);
+    System.out.println(arr[i].x+", "+arr[i].y+" objetivo: "+arr[i].objetive);
   }
   System.out.println("\n");
 }
@@ -106,7 +109,15 @@ Individual[] generate_selected_individuals(int generation_size, int[] prob_array
   return selected_individuals;
 }
 
-
+Individual[] generate_childrens(Individual[] selected_individual, int generation_size){ // generatin children by crossover 
+  Individual[] childrens = new Individual[generation_size];
+  
+  for(int i=0; i<generation_size;i++){
+    childrens[i] = new Individual(selected_individual[i].x,selected_individual[generation_size-i-1].y);
+  }
+  
+  return childrens;
+}
 
 //float z = funtion(population[1].x,population[1].y);
 //System.out.println(population[1].x);
