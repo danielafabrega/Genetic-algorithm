@@ -6,17 +6,23 @@
 import java.util.Arrays;
 
 int prob_array[];
- Individual[] population;
- Individual optimal_individual;
+Individual[] population;
+Individual optimal_individual;
 //crear individuo
 
 //int main() {
 void setup() {
+  System.out.println(random(0, 100));
   int generation_size = 500;
+  float mutation_probability= 50; // please set in percentaje ex: 2 means 2%, if you put 0.2 it means 0.2%
   Individual[] childrens;
+  //Individual[] mutated_population;
   population = init_population(10);
   optimal_individual = new Individual(999999);
   System.out.println(optimal_individual.objetive);
+  Individual[] selected_individuals;
+  
+  
   //////////////////////////////
   
   
@@ -26,20 +32,15 @@ void setup() {
   print_fits(population);
   
   prob_array = generate_prob_array(population);
-  Individual[] selected_individuals = generate_selected_individuals(generation_size, prob_array); // TO DO: separate individual var
+  selected_individuals = generate_selected_individuals(generation_size, prob_array); // TO DO: separate individual var
   print_fits(selected_individuals);
   childrens = generate_childrens(selected_individuals, generation_size);
   print_fits(childrens);
   
   population= childrens;
+  //mutated_population = 
+  mutate_population(mutation_probability, generation_size);
   //System.out.println("wena larry:" + (int)(Math.random() * 50));
-}
-
-void print_fits(Individual[] arr){
-  for (int i=0; i<10;i++){
-    System.out.println(arr[i].x+", "+arr[i].y+" objetivo: "+arr[i].objetive);
-  }
-  System.out.println("\n");
 }
 
 
@@ -91,9 +92,12 @@ class Individual implements Comparable<Individual>{
   }
 }
 
-//funcion objetivo
-void print(){
-  System.out.println("Hola");
+
+void print_fits(Individual[] arr){
+  for (int i=0; i<10;i++){
+    System.out.println(arr[i].x+", "+arr[i].y+" objetivo: "+arr[i].objetive);
+  }
+  System.out.println("\n");
 }
 
 float objetive_fun(float x, float y){
@@ -155,6 +159,21 @@ void update_optimal(){
       optimal_individual.set_objetive(value);
     }
   }
+}
+
+void mutate_population(float percentaje, int population_size){
+  
+  for(int i = 0; i < population_size; i++){
+    if(random(0, 100)<percentaje){ // if we pass this if, we must mutate x or y 
+      if(random(0,1)<0.5){
+        population[i].set_x(random(-5.12, 5.12));
+      }
+      else{
+        population[i].set_y(random(-5.12, 5.12));
+      }
+    }
+  }
+  
 }
 
 //float z = funtion(population[1].x,population[1].y);
