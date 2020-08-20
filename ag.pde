@@ -13,8 +13,10 @@ Individual optimal_individual;
 //int main() {
 void setup() {
   System.out.println(random(0, 100));
+  int generations = 100; 
   int generation_size = 500;
-  float mutation_probability= 50; // please set in percentaje ex: 2 means 2%, if you put 0.2 it means 0.2%
+  int count=0;
+  float mutation_probability= 5; // please set in percentaje ex: 2 means 2%, if you put 0.2 it means 0.2%
   Individual[] childrens;
   //Individual[] mutated_population;
   population = init_population(10);
@@ -25,22 +27,26 @@ void setup() {
   
   //////////////////////////////
   
+  while(count<generations){
+    
+    print_fits(population);
+    update_optimal();
+    Arrays.sort(population);
+    print_fits(population);
+    
+    prob_array = generate_prob_array(population);
+    selected_individuals = generate_selected_individuals(generation_size, prob_array); // TO DO: separate individual var
+    print_fits(selected_individuals);
+    childrens = generate_childrens(selected_individuals, generation_size);
+    print_fits(childrens);
+    
+    population= childrens;
+    mutate_population(mutation_probability, generation_size); 
+    print_fits(population);
+    count++;
+  }  
   
-  update_optimal();
-  print_fits(population);
-  Arrays.sort(population);
-  print_fits(population);
-  
-  prob_array = generate_prob_array(population);
-  selected_individuals = generate_selected_individuals(generation_size, prob_array); // TO DO: separate individual var
-  print_fits(selected_individuals);
-  childrens = generate_childrens(selected_individuals, generation_size);
-  print_fits(childrens);
-  
-  population= childrens;
-  //mutated_population = 
-  mutate_population(mutation_probability, generation_size);
-  //System.out.println("wena larry:" + (int)(Math.random() * 50));
+  System.out.println("el optimo es"+optimal_individual.get_objetive()); 
 }
 
 
