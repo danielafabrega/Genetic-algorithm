@@ -1,12 +1,15 @@
-
+/// poner textos en la pantalla? se ve feo 
 import java.util.Arrays;
 
+PrintWriter output;
 
 GA genetic_algorithm;
+GA algorithm;
 int current_generation=0;
-int max_generations=500;
+int max_generations=2;
 float y_range[] = {-5.12f, 5.12f};
 float x_range[] = {-5.12f, 5.12f};
+boolean experiment_mode=true;
 
 void setup() {
   
@@ -16,32 +19,64 @@ void setup() {
   frameRate(60);
   int generation_size= 500;
   int initial_individuals=10;
-  int mutation_probability=50;
+  int mutation_probability=25;
+  
   
   genetic_algorithm= new GA(max_generations, generation_size, initial_individuals, mutation_probability); 
-  print_fits(genetic_algorithm.population);
-
+  //print_fits(genetic_algorithm.population);
+  if(experiment_mode){
+    output = createWriter("experiment_data_"+year()+"-"+month()+"-"+day()+".txt");
+    run_experiments();
+    //noLoop();
+  }
+  //while (current_generation<max_generations){
+  //  genetic_algorithm.run_generation(1);
+  //  current_generation++;
+  //}
+  //sacar metricas
+  output.close();
+  
 }
 
 void draw(){
   
-  if(current_generation < max_generations){
-    background(0);
+  if((current_generation < max_generations) && !experiment_mode ){
+    genetic_algorithm.run_generation();
+    /*background(0);
     genetic_algorithm.update_optimal();
     genetic_algorithm.sort_population_by_fit();
     genetic_algorithm.generate_prob_array();
     genetic_algorithm.generate_selected_individuals();
     genetic_algorithm.generate_childrens();
     genetic_algorithm.mutate_population_by_random_value();
-    current_generation++;
+    
     genetic_algorithm.draw_individuals();
     
-    genetic_algorithm.print_optimal();
-  }
+    genetic_algorithm.print_optimal();*/
+    current_generation++;
+  } 
     
   //System.out.println("hey");
 }
 
+void run_experiments(){
+  //the idea of this function it's automate de data generation in a easy way creating a csv
+  
+  
+  int current_iteration;
+  int max_iterator_generator=1;
+  
+  for (int i=0; i<max_iterator_generator; i++){
+    current_iteration= 0;
+
+    while (current_generation<max_generations){
+      genetic_algorithm.run_generation();
+      System.out.println("we");
+      print_fits(genetic_algorithm.population);
+      current_generation++;
+    }
+  }
+}
 
 float objetive_fun(float x, float y){
   return 20+((float)Math.pow(x,2)-10*cos(2*PI*x)+(float)Math.pow(y,2)-10*cos(2*PI*y));
@@ -74,7 +109,7 @@ class GA{
     this.mutation_probability=mutation_probability;
     this.population = init_population(initial_individuals);
     this.optimal_individual = new Individual(999999);
-    draw_individuals();
+    //draw_individuals();
     
   }
   
@@ -88,6 +123,29 @@ class GA{
     }
   };
   
+  void run_generation(){
+    background(0);
+    this.update_optimal();
+    this.sort_population_by_fit();
+    this.generate_prob_array();
+    this.generate_selected_individuals();
+    this.generate_childrens();
+    this.mutate_population_by_random_value();
+    
+    if(experiment_mode){
+    this.log_generation_data_csv();
+    }
+    else{
+    this.draw_individuals();
+    }
+    
+    this.print_optimal();
+  }
+  
+  void log_generation_data_csv(){
+    System.out.println("ESTOY EN EL LOG CSV");
+    output.println(current_generation+", "+this.optimal_individual.objetive);
+  }
   
   Individual[] init_population(int size){
     
@@ -96,6 +154,7 @@ class GA{
       popu[i] = new Individual(random(x_range[0], x_range[1]),random(y_range[0], y_range[1]));
       //System.out.println("gola");
     }
+    System.out.println("init_population");
      return popu;
   }
   
@@ -106,7 +165,7 @@ class GA{
   }
 
   void generate_prob_array(){
-    
+    System.out.println("gen_prob_array");
     int total_length = 1;
     int size = this.population.length;
     for(int i=1;i<=size;i++){total_length += i;}    
@@ -118,26 +177,25 @@ class GA{
         index++;
       }
     }
-    prob_array=A; 
+    this.prob_array=A; 
   }
   
   
   void generate_selected_individuals(){
-    
+    System.out.println("generate_selected_individuals");
     Individual[] selected_individuals = new Individual[this.generation_size];
     int prob_array_length = this.prob_array.length;
     for (int i=0; i<this.generation_size; i++){
-      selected_individuals[i] = population[this.prob_array[(int)(Math.random() * prob_array_length)]];
+      selected_individuals[i] = this.population[this.prob_array[(int)(Math.random() * prob_array_length)]];
     }
-    this.population=selected_individuals;
-      
+    this.population=selected_individuals; 
   }
   
   
   void generate_childrens(){ // generatin children by crossover 
-  
+    System.out.println("childrens");
     Individual[] childrens = new Individual[this.generation_size];
-    for(int i=0; i<generation_size;i++){
+    for(int i=0; i<this.generation_size;i++){
       childrens[i] = new Individual(this.population[i].x, this.population[generation_size-i-1].y);
     }
     this.population = childrens;
@@ -145,29 +203,29 @@ class GA{
   
   
   void update_optimal(){
-    
+    System.out.println("se actualiza");
     float value;
   
-    for (int i= 0; i<population.length; i++){
-      value = population[i].get_objetive();
+    for (int i= 0; i<this.population.length; i++){
+      value = this.population[i].get_objetive();
       if(optimal_individual.get_objetive()>value){
-        optimal_individual.set_x(population[i].get_x());
-        optimal_individual.set_y(population[i].get_y());
-        optimal_individual.set_objetive(value);
+        this.optimal_individual.set_x(population[i].get_x());
+        this.optimal_individual.set_y(population[i].get_y());
+        this.optimal_individual.set_objetive(value);
       }
     }
   }
   
   
   void mutate_population_by_random_value(){
-    
+    System.out.println("mutation");
     for(int i = 0; i < this.generation_size; i++){
       if(random(0, 100)<this.mutation_probability){ // if we pass this if, we must mutate x or y 
         if(random(0,1)<0.5){
-          population[i].set_x(random(x_range[0], x_range[1]));
+          this.population[i].set_x(random(x_range[0], x_range[1]));
         }
         else{
-          population[i].set_y(random(y_range[0], y_range[1]));
+          this.population[i].set_y(random(y_range[0], y_range[1]));
         }
       }
     }
