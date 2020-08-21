@@ -3,27 +3,46 @@
 // while que encapsula todo
 // elitismo ???
 // mutaciones ???
+// dar color a los puntos a partir de un mapa de color relativo para el intervalo????? o es mucho lucho?
+
+// parametrizacion de los limites => cambiarlos en los random que generan numeros tanto en inicializacion como en el mutation 
+    // tambien es necesario parametrizar el dibujo en funcion del width y height relacionados con el eje x y el eje y respectivamente. 
 import java.util.Arrays;
 
 int prob_array[];
 Individual[] population;
 Individual optimal_individual;
+float x_range[] = {-5.12f, 5.12f}; // {x_inferior_limit, y_inferior_limit}
+float y_range[] = {-5.12f, 5.12f};
 //crear individuo
 
 //int main() {
 void setup() {
+  
+  size(512, 512); // TODO: refactory drawing in terms of width and height
+  background(0);
+  stroke(255);
+ 
+  
+  Individual hijo= new Individual(1,1);
+  hijo.display();
+  Individual hijo2= new Individual(0,0);
+  hijo2.display();
+  
   System.out.println(random(0, 100));
   int generations = 100; 
   int generation_size = 500;
   int count=0;
+  int initial_individuals=10;
   float mutation_probability= 5; // please set in percentaje ex: 2 means 2%, if you put 0.2 it means 0.2%
   Individual[] childrens;
   //Individual[] mutated_population;
-  population = init_population(10);
+  population = init_population(initial_individuals);
   optimal_individual = new Individual(999999);
   System.out.println(optimal_individual.objetive);
   Individual[] selected_individuals;
   
+  draw_individuals(initial_individuals);
   
   //////////////////////////////
   
@@ -46,7 +65,11 @@ void setup() {
     count++;
   }  
   
-  System.out.println("el optimo es"+optimal_individual.get_objetive()); 
+  //System.out.println("el optimo es"+optimal_individual.get_objetive()); 
+   
+   //System.out.println(width+"  "+(x_range[1]-x_range[0]));
+   //System.out.println((hijo.get_x()-x_range[0])/(x_range[1]-x_range[0])*width);
+   
 }
 
 
@@ -80,23 +103,25 @@ class Individual implements Comparable<Individual>{
     return this.objetive;
   }
   
+  void display(){
+    circle((this.x-x_range[0])/(x_range[1]-x_range[0])*width,(this.y-y_range[0])/(y_range[1]-y_range[0])*height,3);
+  }
   
   @Override
   public int compareTo(Individual i) {
-    if(this.objetive < i.get_objetive_value()) return -1;
-    if(this.objetive == i.get_objetive_value()) return 0;
+    if(this.objetive < i.get_objetive()) return -1;
+    if(this.objetive == i.get_objetive()) return 0;
        //if(this.age > p.getAge()) return 1;
     else return 1;
     }
   
-  void update_objetive(){
-    this.objetive=objetive_fun(this.x, this.y);
-  }
-  
-  float get_objetive_value(){
-    return this.objetive;
-  }
 }
+
+void draw_individuals(int p){
+  for (int i=1; i<p; i++){
+    population[i].display();
+  }
+};
 
 
 void print_fits(Individual[] arr){
