@@ -4,78 +4,62 @@ import java.util.Arrays;
 PrintWriter output;
 
 GA genetic_algorithm;
-GA algorithm;
+GA[] algorithms;
 int current_generation=0;
-int max_generations=2;
+int max_generations=200;
 float y_range[] = {-5.12f, 5.12f};
 float x_range[] = {-5.12f, 5.12f};
 boolean experiment_mode=true;
 
+//////////////////////////////////////////// SETUP/////////////////////////////////////////////////
 void setup() {
-  
+  // window settings
   size(512, 512); 
   background(0);
   stroke(255);
   frameRate(60);
+  // algorithm params
   int generation_size= 500;
   int initial_individuals=10;
-  int mutation_probability=25;
+  int mutation_probability=1;
   
+  int[] param_to_vary={0,20,40,60,80,100};
   
   genetic_algorithm= new GA(max_generations, generation_size, initial_individuals, mutation_probability); 
-  //print_fits(genetic_algorithm.population);
   if(experiment_mode){
+    algorithms = new GA[param_to_vary.length];
     output = createWriter("experiment_data_"+year()+"-"+month()+"-"+day()+".txt");
+    for(int i = 0; i<param_to_vary.length; i++){
+      algorithms[i] = new GA(max_generations, generation_size, initial_individuals, param_to_vary[i]); ;
+    }
+    
     run_experiments();
-    //noLoop();
-  }
-  //while (current_generation<max_generations){
-  //  genetic_algorithm.run_generation(1);
-  //  current_generation++;
-  //}
-  //sacar metricas
-  output.close();
-  
+    
+    output.close();
+    exit();
+  }  
 }
 
+//////////////////////////////////////////////// DRAW///////////////////////////////////
 void draw(){
   
   if((current_generation < max_generations) && !experiment_mode ){
     genetic_algorithm.run_generation();
-    /*background(0);
-    genetic_algorithm.update_optimal();
-    genetic_algorithm.sort_population_by_fit();
-    genetic_algorithm.generate_prob_array();
-    genetic_algorithm.generate_selected_individuals();
-    genetic_algorithm.generate_childrens();
-    genetic_algorithm.mutate_population_by_random_value();
-    
-    genetic_algorithm.draw_individuals();
-    
-    genetic_algorithm.print_optimal();*/
     current_generation++;
   } 
-    
-  //System.out.println("hey");
 }
 
 void run_experiments(){
   //the idea of this function it's automate de data generation in a easy way creating a csv
-  
-  
-  int current_iteration;
-  int max_iterator_generator=1;
-  
-  for (int i=0; i<max_iterator_generator; i++){
-    current_iteration= 0;
-
+  for (int i=0; i<algorithms.length; i++){
+    current_generation = 0;
     while (current_generation<max_generations){
-      genetic_algorithm.run_generation();
-      System.out.println("we");
-      print_fits(genetic_algorithm.population);
+      algorithms[i].run_generation();
+      //print_fits(genetic_algorithm.population);
       current_generation++;
     }
-  }
+    
+  }  
 }
 
 float objetive_fun(float x, float y){
@@ -89,7 +73,7 @@ void print_fits(Individual[] arr){
   System.out.println("\n");
 }
 
-
+////////////////////////////// GA CLASS /////////////////////////////////////////////////
 class GA{
   int prob_array[];
   Individual[] population;
@@ -143,8 +127,16 @@ class GA{
   }
   
   void log_generation_data_csv(){
-    System.out.println("ESTOY EN EL LOG CSV");
-    output.println(current_generation+", "+this.optimal_individual.objetive);
+    
+    output.print(this.optimal_individual.objetive);
+    
+    if (current_generation == max_generations-1){ 
+      System.out.println("ESTOY EN LA ULTIMA GENERATION");
+      output.println();
+     }
+    else{
+      output.print(", ");
+    }
   }
   
   Individual[] init_population(int size){
@@ -152,7 +144,6 @@ class GA{
     Individual[] popu = new Individual[size];
     for (int i=0; i < size; i++){
       popu[i] = new Individual(random(x_range[0], x_range[1]),random(y_range[0], y_range[1]));
-      //System.out.println("gola");
     }
     System.out.println("init_population");
      return popu;
@@ -165,7 +156,6 @@ class GA{
   }
 
   void generate_prob_array(){
-    System.out.println("gen_prob_array");
     int total_length = 1;
     int size = this.population.length;
     for(int i=1;i<=size;i++){total_length += i;}    
@@ -182,7 +172,6 @@ class GA{
   
   
   void generate_selected_individuals(){
-    System.out.println("generate_selected_individuals");
     Individual[] selected_individuals = new Individual[this.generation_size];
     int prob_array_length = this.prob_array.length;
     for (int i=0; i<this.generation_size; i++){
@@ -193,7 +182,6 @@ class GA{
   
   
   void generate_childrens(){ // generatin children by crossover 
-    System.out.println("childrens");
     Individual[] childrens = new Individual[this.generation_size];
     for(int i=0; i<this.generation_size;i++){
       childrens[i] = new Individual(this.population[i].x, this.population[generation_size-i-1].y);
@@ -203,7 +191,6 @@ class GA{
   
   
   void update_optimal(){
-    System.out.println("se actualiza");
     float value;
   
     for (int i= 0; i<this.population.length; i++){
@@ -218,7 +205,6 @@ class GA{
   
   
   void mutate_population_by_random_value(){
-    System.out.println("mutation");
     for(int i = 0; i < this.generation_size; i++){
       if(random(0, 100)<this.mutation_probability){ // if we pass this if, we must mutate x or y 
         if(random(0,1)<0.5){
@@ -233,7 +219,7 @@ class GA{
   
 }
 
-
+////////////////////////////////////INDIVIDUAL CLASS ///////////////////////////////////////////////////
 class Individual implements Comparable<Individual>{
   
   float x,y,objetive;
