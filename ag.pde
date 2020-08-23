@@ -5,13 +5,15 @@ PrintWriter output;
 
 GA genetic_algorithm;
 GA[] algorithms;
+GA[] video_algorithms;
 int current_generation=0;
-int max_generations=500;
+int max_generations=50;
 float y_range[] = {-5.12f, 5.12f};
 float x_range[] = {-5.12f, 5.12f};
 boolean experiment_mode=false;
 boolean video_mode=true;
 int video_counter=0;
+int video_algorithms_quantity=10;
 
 //////////////////////////////////////////// SETUP/////////////////////////////////////////////////
 void setup() {
@@ -29,6 +31,19 @@ void setup() {
   
   genetic_algorithm= new GA(max_generations, generation_size, initial_individuals, mutation_probability); 
   
+  if(video_mode){
+    video_algorithms = new GA[video_algorithms_quantity];
+    video_algorithms[0] = new GA(max_generations, 200, 10, 0);
+    video_algorithms[1] = new GA(max_generations, 200, 10, 1);
+    video_algorithms[2] = new GA(max_generations, 200, 10, 50);
+    video_algorithms[3] = new GA(max_generations, 200, 10, 100);
+    video_algorithms[4] = new GA(max_generations, 10, 10, 10);
+    video_algorithms[5] = new GA(max_generations, 500, 10, 10);
+    video_algorithms[6] = new GA(max_generations, 1000, 10, 10);
+    video_algorithms[7] = new GA(max_generations, 200, 10, 10);
+    video_algorithms[8] = new GA(max_generations, 200, 500, 10);
+    video_algorithms[9] = new GA(max_generations, 200, 200, 10);
+  }
   
   if(experiment_mode){
     algorithms = new GA[param_to_vary.length];
@@ -47,10 +62,18 @@ void setup() {
 //////////////////////////////////////////////// DRAW///////////////////////////////////
 void draw(){
   
-  if((current_generation < max_generations) && !experiment_mode ){
-    genetic_algorithm.run_generation();
-    current_generation++;
-  } 
+    if((current_generation < max_generations*video_algorithms_quantity) && !experiment_mode ){
+      video_algorithms[current_generation/max_generations].run_generation();
+      current_generation++;
+      System.out.println("10");
+  
+
+  
+  System.out.println(video_counter/max_generations);
+  video_counter++;
+  
+  }
+
 
 }
 
@@ -205,7 +228,7 @@ class GA{
         this.optimal_individual.set_x(population[i].get_x());
         this.optimal_individual.set_y(population[i].get_y());
         this.optimal_individual.set_objetive(value);
-        this.generations_to_reach_best=current_generation;
+        this.generations_to_reach_best=current_generation-((current_generation/max_generations)*max_generations);
       }
     }
     
@@ -215,7 +238,7 @@ class GA{
       fill(#00ff00);
        text("Best fitness: "+str(this.optimal_individual.get_objetive())+
        "\nGenerations to reach best: "+str(this.generations_to_reach_best)+
-       "\nGeneration: "+str(current_generation)+
+       "\nGeneration: "+str(current_generation-((current_generation/max_generations)*max_generations))+
        "\nMutation probability: "+str(this.mutation_probability)+
        "\nPopulation: "+str(this.population.length)+
        "\nFrame rate: "+str(frameRate)
