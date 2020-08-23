@@ -7,7 +7,7 @@ GA genetic_algorithm;
 GA[] algorithms;
 GA[] video_algorithms;
 int current_generation=0;
-int max_generations=50;
+int max_generations=200;
 float y_range[] = {-5.12f, 5.12f};
 float x_range[] = {-5.12f, 5.12f};
 boolean experiment_mode=false;
@@ -18,10 +18,11 @@ int video_algorithms_quantity=10;
 //////////////////////////////////////////// SETUP/////////////////////////////////////////////////
 void setup() {
   // window settings
+  frameRate(2);
   size(800, 800); 
   background(0);
   stroke(255);
-  frameRate(60);
+  
   // algorithm params
   int generation_size= 500;
   int initial_individuals=10;
@@ -59,6 +60,15 @@ void setup() {
   }  
 }
 
+void mouseWheel(MouseEvent event) {
+  if (frameRate>0){
+    frameRate(frameRate+(event.getCount()*5));
+  }
+  else{frameRate(2);}
+
+}                      
+
+
 //////////////////////////////////////////////// DRAW///////////////////////////////////
 void draw(){
   
@@ -66,13 +76,10 @@ void draw(){
       video_algorithms[current_generation/max_generations].run_generation();
       current_generation++;
       System.out.println("10");
-  
-
-  
-  System.out.println(video_counter/max_generations);
-  video_counter++;
-  
-  }
+      if(current_generation-((current_generation/max_generations)*max_generations)==max_generations-2){
+        frameRate(2);
+      }
+    }
 
 
 }
@@ -236,7 +243,9 @@ class GA{
       PFont f = createFont("Arial",8,true);
       textFont(f,15);
       fill(#00ff00);
-       text("Best fitness: "+str(this.optimal_individual.get_objetive())+
+       text(
+       "Experiment N°: "+str((current_generation/max_generations)+1)+
+       "\nBest fitness: "+str(this.optimal_individual.get_objetive())+
        "\nGenerations to reach best: "+str(this.generations_to_reach_best)+
        "\nGeneration: "+str(current_generation-((current_generation/max_generations)*max_generations))+
        "\nMutation probability: "+str(this.mutation_probability)+
