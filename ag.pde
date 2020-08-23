@@ -6,29 +6,33 @@ PrintWriter output;
 GA genetic_algorithm;
 GA[] algorithms;
 int current_generation=0;
-int max_generations=200;
+int max_generations=500;
 float y_range[] = {-5.12f, 5.12f};
 float x_range[] = {-5.12f, 5.12f};
-boolean experiment_mode=true;
+boolean experiment_mode=false;
+boolean video_mode=true;
+int video_counter=0;
 
 //////////////////////////////////////////// SETUP/////////////////////////////////////////////////
 void setup() {
   // window settings
-  size(512, 512); 
+  size(800, 800); 
   background(0);
   stroke(255);
   frameRate(60);
   // algorithm params
   int generation_size= 500;
   int initial_individuals=10;
-  int mutation_probability=1;
+  int mutation_probability=40;
   
-  int[] param_to_vary={0,20,40,60,80,100};
+  int[] param_to_vary={0,50,100};
   
   genetic_algorithm= new GA(max_generations, generation_size, initial_individuals, mutation_probability); 
+  
+  
   if(experiment_mode){
     algorithms = new GA[param_to_vary.length];
-    output = createWriter("experiment_data_"+year()+"-"+month()+"-"+day()+".txt");
+    output = createWriter("experiment_data_"+year()+"-"+month()+"-"+day()+".csv");
     for(int i = 0; i<param_to_vary.length; i++){
       algorithms[i] = new GA(max_generations, generation_size, initial_individuals, param_to_vary[i]); ;
     }
@@ -47,6 +51,7 @@ void draw(){
     genetic_algorithm.run_generation();
     current_generation++;
   } 
+
 }
 
 void run_experiments(){
@@ -85,6 +90,7 @@ class GA{
   int initial_individuals;//=10;
   float mutation_probability= 5; // please set in percentaje ex: 2 means 2%, if you put 0.2 it means 0.2%
   Individual[] childrens;
+  int generations_to_reach_best=0;
   
   GA(int generations, int generation_size, int initial_individuals, float mutation_probability){
     this.generations=generations;
@@ -117,10 +123,10 @@ class GA{
     this.mutate_population_by_random_value();
     
     if(experiment_mode){
-    this.log_generation_data_csv();
+      this.log_generation_data_csv();
     }
     else{
-    this.draw_individuals();
+      this.draw_individuals();
     }
     
     this.print_optimal();
@@ -199,7 +205,21 @@ class GA{
         this.optimal_individual.set_x(population[i].get_x());
         this.optimal_individual.set_y(population[i].get_y());
         this.optimal_individual.set_objetive(value);
+        this.generations_to_reach_best=current_generation;
       }
+    }
+    
+    if(!experiment_mode){
+      PFont f = createFont("Arial",8,true);
+      textFont(f,15);
+      fill(#00ff00);
+       text("Best fitness: "+str(this.optimal_individual.get_objetive())+
+       "\nGenerations to reach best: "+str(this.generations_to_reach_best)+
+       "\nGeneration: "+str(current_generation)+
+       "\nMutation probability: "+str(this.mutation_probability)+
+       "\nPopulation: "+str(this.population.length)+
+       "\nFrame rate: "+str(frameRate)
+       ,10,20);
     }
   }
   
